@@ -74,3 +74,28 @@ services:
       - ./cache/composer/:/root/.composer/cache
       - ./containers/php/config.d:/usr/local/etc/php/extra.d
       - ./code-server/php/:/root/.vscode-server
+  database:
+    image: postgres:alpine
+    networks:
+      - backend
+    environment:
+      - POSTGRES_USER=${DB_USERNAME}
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_DATABASE}
+    volumes:
+      - ${DB_DATA_PATH:-./database/data}:/var/lib/postgresql/data:Z
+  adminer:
+    image: adminer
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.db-${PROJECT_NAME}.loadbalancer.server.port=8080
+      - traefik.http.routers.db-${PROJECT_NAME}.entrypoints=web-secure
+      - traefik.http.routers.db-${PROJECT_NAME}.tls
+      - traefik.http.routers.db-${PROJECT_NAME}.rule=Host(`db.${PROJECT_HOSTNAME}`)
+    networks:
+      - backend
+      - public
+    environment:
+     - ADMINER_DEFAULT_SERVER=database
+    depends_on:
+      - database
