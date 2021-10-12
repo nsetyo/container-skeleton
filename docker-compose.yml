@@ -69,6 +69,7 @@ services:
       - backend
     environment:
       - PHP_INI_SCAN_DIR=/usr/local/etc/php/extra.d:/usr/local/etc/php/conf.d
+    working_dir: ${BACKEND_WORKING_DIR:-/var/www}
     volumes:
       - ${BACKEND_DIR_HOST:-./backend}:/var/www
       - ./cache/composer/:/root/.composer/cache
