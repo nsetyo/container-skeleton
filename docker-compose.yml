@@ -28,7 +28,6 @@ services:
       - public
     depends_on:
       - ${BACKEND_ENGINE:-php-fpm}
-### Backend Service ############################################################
   php-fpm:
     image: ${PROJECT_NAME}-app
     build:
@@ -75,6 +74,8 @@ services:
       - ./cache/composer/:/root/.composer/cache
       - ./containers/php/config.d:/usr/local/etc/php/extra.d
       - ./code-server/php/:/root/.vscode-server
+
+### Database Service ###########################################################
   database:
     image: postgres:alpine
     networks:
@@ -84,7 +85,7 @@ services:
       - POSTGRES_PASSWORD=${DB_PASSWORD}
       - POSTGRES_DB=${DB_DATABASE}
     volumes:
-      - ${DB_DATA_PATH:-./database/data}:/var/lib/postgresql/data:Z
+      - ${DB_DATA_PATH:-./storage/database}:/var/lib/postgresql/data:Z
   adminer:
     image: adminer
     labels:
@@ -100,3 +101,36 @@ services:
      - ADMINER_DEFAULT_SERVER=database
     depends_on:
       - database
+
+### Search Service #############################################################
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch:${ELASTICSEARCH_VERSION:-7.15.1}
+    user: root
+    networks:
+      - backend
+      - public
+    environment:
+      - ES_SETTING_BOOTSTRAP_MEMORY__LOCK=true
+      - ES_SETTING_CLUSTER_NAME=docker-cluster
+      - ES_SETTING_DISCOVERY_TYPE=single-node
+      - ES_SETTING_XPACK_SECURITY_ENABLED=true
+      - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
+    volumes:
+      - ${ELASTIC_DATA_PATH:-./storage/elasticsearch}:/usr/share/elasticsearch/data
+  kibana:
+    image: docker.elastic.co/kibana/kibana:${ELASTICSEARCH_VERSION:-7.15.1}
+    environment:
+      - ELASTICSEARCH_URL=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+    depends_on:
+      - elasticsearch
+    networks:
+      - backend
+      - public
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.kibana-${PROJECT_NAME}.loadbalancer.server.port=5601
+      - traefik.http.routers.kibana-${PROJECT_NAME}.tls
+      - traefik.http.routers.kibana-${PROJECT_NAME}.rule=Host(`kibana.${PROJECT_HOSTNAME}`)
+      - traefik.http.routers.kibana-${PROJECT_NAME}.entrypoints=web-secure
