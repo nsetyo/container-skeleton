@@ -4,22 +4,53 @@ version: '3'
 networks:
   public:
     external:
-      name: ${PROJECT_EXTERNAL_NETWORK}
+      name: ${PROJECT_EXTERNAL_NETWORK:-traefik}
   backend:
     driver: bridge
   default:
     driver: bridge
 
 services:
-### API Service ############################################################
+### Frontend Service ###########################################################
+  frontend:
+    image: aktiva-web
+    build:
+      context: ./containers/node
+      args:
+        - NODEJS_VERSION=${NODEJS_VERSION:-latest}
+        ### OS Timezone
+        - TIMEZONE=${TIMEZONE:-Asia/Jakarta}
+    command:
+      - npm
+      - run
+      - dev
+    working_dir: /app
+    volumes :
+      - ./cache/npm/:/root/.npm/
+      - ./code-server/node:/root/.vscode-server
+      - ${FRONTEND_DIR_HOST}:/app
+    environment:
+      - PUBLIC_URL=${PROJECT_HOSTNAME}
+      - PORT=3000
+    labels:
+      - traefik.enable=true
+      - traefik.http.services.fe-${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=3000
+      - traefik.http.routers.fe-${COMPOSE_PROJECT_NAME}.entrypoints=web-secure
+      - traefik.http.routers.fe-${COMPOSE_PROJECT_NAME}.tls
+      - traefik.http.routers.fe-${COMPOSE_PROJECT_NAME}.rule=Host(`${PROJECT_HOSTNAME}`)
+    networks:
+      - public
+    expose:
+      - 3000
+### API Service ################################################################
   api:
     image   : nginx:alpine
     labels:
       - traefik.enable=true
-      - traefik.http.services.api-${PROJECT_NAME}.loadbalancer.server.port=80
-      - traefik.http.routers.api-${PROJECT_NAME}.entrypoints=web-secure
-      - traefik.http.routers.api-${PROJECT_NAME}.tls
-      - traefik.http.routers.api-${PROJECT_NAME}.rule=Host(`api.${PROJECT_HOSTNAME}`)
+      - traefik.http.services.api-${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=80
+      - traefik.http.routers.api-${COMPOSE_PROJECT_NAME}.entrypoints=web-secure
+      - traefik.http.routers.api-${COMPOSE_PROJECT_NAME}.tls
+      - traefik.http.routers.api-${COMPOSE_PROJECT_NAME}.rule=Host(`api.${PROJECT_HOSTNAME}`)
     volumes :
       - ./containers/nginx/backend-nginx.conf:/etc/nginx/conf.d/default.conf:ro
       - ${BACKEND_DIR_HOST:-./backend}/:/var/www
@@ -29,7 +60,7 @@ services:
     depends_on:
       - ${BACKEND_ENGINE:-php-fpm}
   php-fpm:
-    image: ${PROJECT_NAME}-app
+    image: ${COMPOSE_PROJECT_NAME}-app
     build:
       context: ./containers/php
       args:
@@ -90,10 +121,10 @@ services:
     image: adminer
     labels:
       - traefik.enable=true
-      - traefik.http.services.db-${PROJECT_NAME}.loadbalancer.server.port=8080
-      - traefik.http.routers.db-${PROJECT_NAME}.entrypoints=web-secure
-      - traefik.http.routers.db-${PROJECT_NAME}.tls
-      - traefik.http.routers.db-${PROJECT_NAME}.rule=Host(`db.${PROJECT_HOSTNAME}`)
+      - traefik.http.services.db-${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=8080
+      - traefik.http.routers.db-${COMPOSE_PROJECT_NAME}.entrypoints=web-secure
+      - traefik.http.routers.db-${COMPOSE_PROJECT_NAME}.tls
+      - traefik.http.routers.db-${COMPOSE_PROJECT_NAME}.rule=Host(`db.${PROJECT_HOSTNAME}`)
     networks:
       - backend
       - public
@@ -123,6 +154,7 @@ services:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+      - TELEMETRY_ENABLED=false
     depends_on:
       - elasticsearch
     networks:
@@ -130,7 +162,7 @@ services:
       - public
     labels:
       - traefik.enable=true
-      - traefik.http.services.kibana-${PROJECT_NAME}.loadbalancer.server.port=5601
-      - traefik.http.routers.kibana-${PROJECT_NAME}.tls
-      - traefik.http.routers.kibana-${PROJECT_NAME}.rule=Host(`kibana.${PROJECT_HOSTNAME}`)
-      - traefik.http.routers.kibana-${PROJECT_NAME}.entrypoints=web-secure
+      - traefik.http.services.kibana-${COMPOSE_PROJECT_NAME}.loadbalancer.server.port=5601
+      - traefik.http.routers.kibana-${COMPOSE_PROJECT_NAME}.tls
+      - traefik.http.routers.kibana-${COMPOSE_PROJECT_NAME}.rule=Host(`kibana.${PROJECT_HOSTNAME}`)
+      - traefik.http.routers.kibana-${COMPOSE_PROJECT_NAME}.entrypoints=web-secure
