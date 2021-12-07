@@ -13,7 +13,7 @@ networks:
 services:
 ### Frontend Service ###########################################################
   frontend:
-    image: aktiva-web
+    image: ${COMPOSE_PROJECT_NAME}
     build:
       context: ./containers/node
       args:
