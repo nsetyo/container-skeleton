@@ -425,6 +425,8 @@ RUN php -v | head -n 1 | grep -q "PHP ${PHP_VERSION}."
 # FINAL TOUCH:
 ################################################################################
 
+COPY ./conf.d/ $PHP_INI_DIR/conf.d/
+
 COPY ./locale.gen /etc/locale.gen
 
 COPY ./fpm-pool.conf /usr/local/etc/php-fpm.d/
