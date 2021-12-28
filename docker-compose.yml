@@ -17,20 +17,16 @@ services:
       context: ./containers/node
       args:
         - NODEJS_VERSION=${NODEJS_VERSION:-16.13}
+        - ENABLE_COREPACK=${ENABLE_COREPACK:-false}
         ### OS Timezone
         - TIMEZONE=${TIMEZONE:-Asia/Jakarta}
     command:
       - npm
       - run
       - dev
-    working_dir: /app
     volumes :
-      - ./cache/npm/:/root/.npm/
-      - ./code-server/node:/root/.vscode-server
       - ${FRONTEND_DIR_HOST:-./frontend}:/app
-    environment:
-      - PUBLIC_URL=${COMPOSE_PROJECT_NAME}.localhost
-      - PORT=3000
+      - ./code-server/node:/root/.vscode-server
     labels:
       caddy: ${COMPOSE_PROJECT_NAME}.localhost
       caddy.reverse_proxy: "{{upstreams 3000}}"
@@ -38,15 +34,16 @@ services:
       - public
     expose:
       - 3000
+    working_dir: /app
 ### API Service ################################################################
   api-server:
-    image   : nginx:alpine
+    image   : nginx:stable-alpine
     labels:
       caddy: api.${COMPOSE_PROJECT_NAME}.localhost
       caddy.reverse_proxy: "{{upstreams}}"
     volumes :
       - ${BACKEND_DIR_HOST:-./backend}/:/var/www
-      - ./containers/nginx/backend-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./containers/php-fpm/nginx.conf:/etc/nginx/conf.d/default.conf:ro
     networks:
       - backend
       - public
@@ -92,11 +89,10 @@ services:
       - backend
     environment:
       - PHP_INI_SCAN_DIR=/usr/local/etc/php/extra.d:/usr/local/etc/php/conf.d
-    working_dir: /var/www
     volumes:
-      - ./code-server/php-fpm/:/root/.vscode-server
-      - ./config/php-fpm:/usr/local/etc/php/extra.d
       - ${BACKEND_DIR_HOST:-./backend}:/var/www
+      - ./code-server/php-fpm/:/root/.vscode-server
+    working_dir: /var/www
 
 ### Database Service ###########################################################
   database:
