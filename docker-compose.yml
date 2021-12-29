@@ -37,16 +37,22 @@ services:
     working_dir: /app
 ### API Service ################################################################
   api-server:
-    image   : nginx:stable-alpine
+    image   : caddy-server
+    build:
+      context: ./containers/caddy
     labels:
-      caddy: api.${COMPOSE_PROJECT_NAME}.localhost
-      caddy.reverse_proxy: "{{upstreams}}"
+      caddy: caddy.${COMPOSE_PROJECT_NAME}.localhost
+      caddy.reverse_proxy: "{{upstreams 80}}"
     volumes :
       - ${BACKEND_DIR_HOST:-./backend}/:/var/www
-      - ./containers/php-fpm/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./containers/php-fpm/Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./storage/caddy/data:/data
+      - ./storage/caddy/config:/config
     networks:
       - backend
       - public
+    expose:
+      - 80
     depends_on:
       - php-fpm
   php-fpm:
