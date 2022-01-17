@@ -41,8 +41,8 @@ services:
     build:
       context: ./containers/caddy
     labels:
-      caddy: caddy.${COMPOSE_PROJECT_NAME}.localhost
-      caddy.reverse_proxy: "{{upstreams 80}}"
+      caddy: api.${COMPOSE_PROJECT_NAME}.localhost
+      caddy.reverse_proxy: "{{upstreams}}"
     volumes :
       - ${BACKEND_DIR_HOST:-./backend}/:/var/www
       - ./containers/php-fpm/Caddyfile:/etc/caddy/Caddyfile:ro
@@ -51,8 +51,6 @@ services:
     networks:
       - backend
       - public
-    expose:
-      - 80
     depends_on:
       - php-fpm
   php-fpm:

@@ -365,9 +365,9 @@ RUN if [ ${INSTALL_SUPERVISOR} = true ]; then \
 # INSTALL SYMFONY
 ################################################################################
 
-ARG INSTALL_SYMFONY=false
+ARG INSTALL_SYMFONY_CLI=false
 
-RUN if [ ${INSTALL_SYMFONY} = true ]; then \
+RUN if [ ${INSTALL_SYMFONY_CLI} = true ]; then \
     curl https://get.symfony.com/cli/installer | bash && \
     mv $HOME/.symfony/bin/symfony /usr/local/bin/symfony \
     ;fi
