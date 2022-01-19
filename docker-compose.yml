@@ -26,6 +26,8 @@ services:
       - dev
     volumes :
       - ${FRONTEND_DIR_HOST:-./frontend}:/app
+      - ./cache/frontend/pnpm:/root/.cache/pnpm
+      - ./cache/frontend/pnpm-store:/root/.pnpm-store
       - ./code-server/node:/root/.vscode-server
     labels:
       caddy: ${COMPOSE_PROJECT_NAME}.localhost
