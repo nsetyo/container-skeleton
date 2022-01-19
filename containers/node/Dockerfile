@@ -27,6 +27,7 @@ ARG ENABLE_COREPACK=false
 
 RUN if [ ${ENABLE_COREPACK} = true ]; then \
     corepack enable \
+    && pnpm add -g pnpm \
     ;fi
 
 ################################################################################
