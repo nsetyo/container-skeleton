@@ -28,7 +28,7 @@ ARG ENABLE_COREPACK=false
 RUN if [ ${ENABLE_COREPACK} = true ]; then \
     corepack enable \
     && pnpm add -g pnpm \
-    && pnpm config set store-dir /root/.pnpm-store
+    && pnpm config set store-dir /root/.pnpm-store \
     ;fi
 
 ################################################################################
