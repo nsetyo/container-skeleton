@@ -25,9 +25,10 @@ services:
       - run
       - dev
     volumes :
-      - ${FRONTEND_DIR_HOST:-./frontend}:/app
+      - ./frontend:/var/www/frontend
       - ./.cache/frontend/pnpm:/root/.cache/pnpm
       - ./.cache/frontend/pnpm-store:/root/.pnpm-store
+      - ./.git:/var/www/.git
       - ./.vscode-server/node:/root/.vscode-server
     labels:
       caddy: ${COMPOSE_PROJECT_NAME}.localhost
@@ -36,7 +37,7 @@ services:
       - public
     expose:
       - 3000
-    working_dir: /app
+    working_dir: /var/www/frontend
 ### API Service ################################################################
   api-server:
     image   : caddy-server
@@ -46,7 +47,7 @@ services:
       caddy: api.${COMPOSE_PROJECT_NAME}.localhost
       caddy.reverse_proxy: "{{upstreams}}"
     volumes :
-      - ${BACKEND_DIR_HOST:-./backend}/:/var/www
+      - ./backend:/var/www/backend
       - ./containers/php-fpm/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./storage/caddy/data:/data
       - ./storage/caddy/config:/config
@@ -96,9 +97,10 @@ services:
     environment:
       - PHP_INI_SCAN_DIR=/usr/local/etc/php/extra.d:/usr/local/etc/php/conf.d
     volumes:
-      - ${BACKEND_DIR_HOST:-./backend}:/var/www
+      - ./backend:/var/www/backend
+      - ./.git:/var/www/.git
       - ./.vscode-server/php-fpm/:/root/.vscode-server
-    working_dir: /var/www
+    working_dir: /var/www/backend
 
 ### Database Service ###########################################################
   database:

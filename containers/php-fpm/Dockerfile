@@ -429,7 +429,7 @@ COPY ./conf.d/ $PHP_INI_DIR/conf.d/
 
 COPY ./locale.gen /etc/locale.gen
 
-COPY ./fpm-pool.conf /usr/local/etc/php-fpm.d/
+COPY ./default.conf /usr/local/etc/php-fpm.d/
 
 # Clean up
 RUN locale-gen && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/log/lastlog /var/log/faillog
