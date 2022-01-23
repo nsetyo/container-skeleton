@@ -26,9 +26,9 @@ services:
       - dev
     volumes :
       - ${FRONTEND_DIR_HOST:-./frontend}:/app
-      - ./cache/frontend/pnpm:/root/.cache/pnpm
-      - ./cache/frontend/pnpm-store:/root/.pnpm-store
-      - ./code-server/node:/root/.vscode-server
+      - ./.cache/frontend/pnpm:/root/.cache/pnpm
+      - ./.cache/frontend/pnpm-store:/root/.pnpm-store
+      - ./.vscode-server/node:/root/.vscode-server
     labels:
       caddy: ${COMPOSE_PROJECT_NAME}.localhost
       caddy.reverse_proxy: "{{upstreams 3000}}"
@@ -97,7 +97,7 @@ services:
       - PHP_INI_SCAN_DIR=/usr/local/etc/php/extra.d:/usr/local/etc/php/conf.d
     volumes:
       - ${BACKEND_DIR_HOST:-./backend}:/var/www
-      - ./code-server/php-fpm/:/root/.vscode-server
+      - ./.vscode-server/php-fpm/:/root/.vscode-server
     working_dir: /var/www
 
 ### Database Service ###########################################################
