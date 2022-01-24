@@ -62,7 +62,7 @@ services:
       context: ./containers/php-fpm
       args:
         - TIMEZONE=${PHP_TIMEZONE:-Asia/Jakarta}
-        - PHP_VERSION=${PHP_PHP_VERSION:-8.0}
+        - PHP_VERSION=${PHP_VERSION:-8.0}
         ### Custom Install #####################################################
         - INSTALL_BCMATH=${PHP_INSTALL_BCMATH:-false}
         - INSTALL_BZIP=${PHP_INSTALL_BZIP:-false}
