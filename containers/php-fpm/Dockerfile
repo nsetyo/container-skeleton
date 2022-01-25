@@ -85,7 +85,7 @@ RUN if [ ${INSTALL_COMPOSER} = true ]; then \
     ;fi
 
 RUN echo "" >> ~/.bashrc && \
-    echo 'export PATH="/var/www/backend/vendor/bin:$PATH"' >> ~/.bashrc
+    echo 'export PATH="/var/www/backend/bin:$PATH"' >> ~/.bashrc
 
 
 ################################################################################
