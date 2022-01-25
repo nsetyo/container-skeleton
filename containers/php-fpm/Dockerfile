@@ -21,9 +21,7 @@ RUN pecl channel-update pecl.php.net \
     unzip \
     bash-completion
 
-RUN echo "" >> ~/.bashrc && \
-    echo 'source /etc/bash_completion' >> ~/.bashrc \
-    ;fi
+RUN echo "" >> ~/.bashrc && echo 'source /etc/bash_completion' >> ~/.bashrc
 
 ################################################################################
 # INSTALL BCMATH:
