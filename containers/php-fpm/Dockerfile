@@ -21,8 +21,6 @@ RUN pecl channel-update pecl.php.net \
     unzip \
     bash-completion
 
-RUN echo "" >> ~/.bashrc && echo 'source /etc/bash_completion' >> ~/.bashrc
-
 ################################################################################
 # INSTALL BCMATH:
 ################################################################################
@@ -77,16 +75,6 @@ RUN if [ ${INSTALL_COMPOSER} = true ]; then \
     composer config -g repo.packagist composer ${COMPOSER_REPO_PACKAGIST} \
     ;fi \
     ;fi
-
-# Export composer vendor path
-RUN if [ ${INSTALL_COMPOSER} = true ]; then \
-    echo "" >> ~/.bashrc && \
-    echo 'export PATH="~/.composer/vendor/bin:$PATH"' >> ~/.bashrc \
-    ;fi
-
-RUN echo "" >> ~/.bashrc && \
-    echo 'export PATH="/var/www/backend/bin:$PATH"' >> ~/.bashrc
-
 
 ################################################################################
 # INSTALL GD:
@@ -454,10 +442,12 @@ COPY ./locale.gen /etc/locale.gen
 
 COPY ./default.conf /usr/local/etc/php-fpm.d/fpm-pool.conf
 
+COPY ./.bashrc /root/.bashrc
+
 # Clean up
 RUN locale-gen && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/log/lastlog /var/log/faillog
 
-WORKDIR /var/www
+WORKDIR /var/www/backend
 
 EXPOSE 9000
 
