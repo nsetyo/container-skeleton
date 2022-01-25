@@ -21,6 +21,10 @@ RUN pecl channel-update pecl.php.net \
     unzip \
     bash-completion
 
+RUN echo "" >> ~/.bashrc && \
+    echo 'source /etc/bash_completion' >> ~/.bashrc \
+    ;fi
+
 ################################################################################
 # INSTALL BCMATH:
 ################################################################################
@@ -83,7 +87,7 @@ RUN if [ ${INSTALL_COMPOSER} = true ]; then \
     ;fi
 
 RUN echo "" >> ~/.bashrc && \
-    echo 'export PATH="/var/www/vendor/bin:$PATH"' >> ~/.bashrc
+    echo 'export PATH="/var/www/backend/vendor/bin:$PATH"' >> ~/.bashrc
 
 
 ################################################################################
