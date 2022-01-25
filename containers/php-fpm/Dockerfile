@@ -11,7 +11,15 @@ USER root
 # always run apt update when start and after add new source list, then clean up at end.
 RUN pecl channel-update pecl.php.net \
     && apt-get update -y \
-    && apt-get install -y --no-install-recommends curl gnupg2 less locales apt-utils git unzip
+    && apt-get install -y --no-install-recommends \
+    curl \
+    gnupg2 \
+    less \
+    locales \
+    apt-utils \
+    git \
+    unzip \
+    bash-completion
 
 ################################################################################
 # INSTALL BCMATH:
