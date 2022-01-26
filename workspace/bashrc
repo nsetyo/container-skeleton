@@ -2,7 +2,7 @@ if [ -f "/etc/bash_completion" ] ; then
   . "/etc/bash_completion"
 fi
 
-for file in ~/source.d/* ; do
+for file in ~/source.d/*.sh ; do
   if [ -f "$file" ] ; then
     . "$file"
   fi
