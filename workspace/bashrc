@@ -8,4 +8,4 @@ for file in ~/source.d/*.sh ; do
   fi
 done
 
-export PATH="~/.composer/vendor/bin:/var/www/backend/bin:$PATH"
+export PATH="~/.composer/vendor/bin:/var/www/backend/vendor/bin:$PATH"
