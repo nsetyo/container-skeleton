@@ -18,8 +18,18 @@ RUN pecl channel-update pecl.php.net \
     locales \
     apt-utils \
     git \
-    unzip \
-    bash-completion
+    unzip
+
+################################################################################
+# INSTALL BASH COMPLETION:
+################################################################################
+
+ARG INSTALL_BASH_COMPLETION=false
+
+RUN if [ ${INSTALL_BASH_COMPLETION} = true ]; then \
+    # Install the bcmath extension
+    apt-get install -y --no-install-recommends bash-completion \
+    ;fi
 
 ################################################################################
 # INSTALL BCMATH:
@@ -71,9 +81,9 @@ ARG COMPOSER_REPO_PACKAGIST
 ENV COMPOSER_REPO_PACKAGIST ${COMPOSER_REPO_PACKAGIST}
 
 RUN if [ ${INSTALL_COMPOSER} = true ]; then \
-    if [ ${COMPOSER_REPO_PACKAGIST} ]; then \
-    composer config -g repo.packagist composer ${COMPOSER_REPO_PACKAGIST} \
-    ;fi \
+        if [ ${COMPOSER_REPO_PACKAGIST} ]; then \
+        composer config -g repo.packagist composer ${COMPOSER_REPO_PACKAGIST} \
+        ;fi \
     ;fi
 
 ################################################################################
@@ -436,13 +446,9 @@ RUN php -v | head -n 1 | grep -q "PHP ${PHP_VERSION}."
 # FINAL TOUCH:
 ################################################################################
 
-COPY ./conf.d/ $PHP_INI_DIR/conf.d/
-
 COPY ./locale.gen /etc/locale.gen
 
 COPY ./default.conf /usr/local/etc/php-fpm.d/fpm-pool.conf
-
-COPY ./.bashrc /root/.bashrc
 
 # Clean up
 RUN locale-gen && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/log/lastlog /var/log/faillog

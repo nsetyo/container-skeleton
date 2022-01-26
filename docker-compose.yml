@@ -64,6 +64,7 @@ services:
         - TIMEZONE=${PHP_TIMEZONE:-Asia/Jakarta}
         - PHP_VERSION=${PHP_VERSION:-8.0}
         ### Custom Install #####################################################
+        - INSTALL_BASH_COMPLETION=${PHP_INSTALL_BASH_COMPLETION:-false}
         - INSTALL_BCMATH=${PHP_INSTALL_BCMATH:-false}
         - INSTALL_BZIP=${PHP_INSTALL_BZIP:-false}
         - INSTALL_CALENDAR=${PHP_INSTALL_CALENDAR:-false}
@@ -96,11 +97,14 @@ services:
     networks:
       - backend
     environment:
-      - PHP_INI_SCAN_DIR=/usr/local/etc/php/extra.d:/usr/local/etc/php/conf.d
+      - PHP_INI_SCAN_DIR=/usr/local/etc/php/conf.d:/usr/local/etc/php/local.d
     volumes:
-      - ./backend:/var/www/backend
       - ./.git:/var/www/.git
       - ./.vscode-server/php-fpm/:/root/.vscode-server
+      - ./backend:/var/www/backend
+      - ./containers/php-fpm/conf.d:/usr/local/etc/php/local.d
+      - ./workspace/bashrc:/root/.bashrc
+      - ./workspace/source.d:/root/source.d
     working_dir: /var/www/backend
 
 ### Database Service ###########################################################
