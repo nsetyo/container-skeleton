@@ -99,6 +99,7 @@ services:
     environment:
       - PHP_INI_SCAN_DIR=/usr/local/etc/php/conf.d:/usr/local/etc/php/local.d
     volumes:
+      - ./.cache/php-fpm/composer:/root/.composer/cache
       - ./.git:/var/www/.git
       - ./.vscode-server/php-fpm/:/root/.vscode-server
       - ./backend:/var/www/backend
