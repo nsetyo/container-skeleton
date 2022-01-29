@@ -106,6 +106,7 @@ services:
       - ./containers/php-fpm/conf.d:/usr/local/etc/php/local.d
       - ./workspace/bashrc:/root/.bashrc
       - ./workspace/source.d:/root/source.d
+      - ${WORKSPACE_SSH_DIR:-./workspace/ssh}:/root/.ssh
     working_dir: /var/www/backend
 
 ### Database Service ###########################################################
