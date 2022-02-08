@@ -27,7 +27,6 @@ RUN pecl channel-update pecl.php.net \
 ARG INSTALL_BASH_COMPLETION=false
 
 RUN if [ ${INSTALL_BASH_COMPLETION} = true ]; then \
-    # Install the bcmath extension
     apt-get install -y --no-install-recommends bash-completion \
     ;fi
 
@@ -48,8 +47,7 @@ RUN if [ ${INSTALL_BCMATH} = true ]; then \
 
 ARG INSTALL_BZIP=true
 
-RUN if [ ${INSTALL_BCMATH} = true ]; then \
-    # Install the bcmath extension
+RUN if [ ${INSTALL_BZIP} = true ]; then \
     apt-get install -y libbz2-dev && docker-php-ext-install bz2 \
     ;fi
 
@@ -401,6 +399,16 @@ ARG INSTALL_TOKENIZER=false
 
 RUN if [ ${INSTALL_TOKENIZER} = true ]; then \
     docker-php-ext-install tokenizer \
+    ;fi
+
+################################################################################
+# INSTALL VIM:
+################################################################################
+
+ARG INSTALL_VIM=false
+
+RUN if [ ${INSTALL_VIM} = true ]; then \
+    apt-get install -y --no-install-recommends vim \
     ;fi
 
 ################################################################################
