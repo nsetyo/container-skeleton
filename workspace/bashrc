@@ -1,11 +1,11 @@
 if [ -f "/etc/bash_completion" ] ; then
-  . "/etc/bash_completion"
+    . "/etc/bash_completion"
 fi
 
 for file in ~/source.d/*.sh ; do
-  if [ -f "$file" ] ; then
-    . "$file"
-  fi
+    if [ -f "$file" ] ; then
+        . "$file"
+    fi
 done
 
-export PATH="~/.composer/vendor/bin:/var/www/backend/vendor/bin:$PATH"
+export PATH="~/.composer/vendor/bin:$PATH"
