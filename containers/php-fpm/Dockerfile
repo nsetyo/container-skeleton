@@ -12,12 +12,13 @@ USER root
 RUN pecl channel-update pecl.php.net \
     && apt-get update -y \
     && apt-get install -y --no-install-recommends \
+    apt-utils \
     curl \
+    git \
     gnupg2 \
     less \
     locales \
-    apt-utils \
-    git \
+    openssh-client \
     unzip
 
 ################################################################################
