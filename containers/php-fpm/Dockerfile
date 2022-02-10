@@ -242,7 +242,7 @@ RUN set -eux; \
         ;elif [ $(php -r "echo PHP_MAJOR_VERSION;") = "7" ] && [ $(php -r "echo PHP_MINOR_VERSION;") = "0" ]; then \
             pecl install pdo_sqlsrv-5.3.0 sqlsrv-5.3.0 \
         ;elif [ $(php -r "echo PHP_MAJOR_VERSION;") = "8" ] && [ $(php -r "echo PHP_MINOR_VERSION;") = "1" ]; then \
-            pecl install pdo_sqlsrv-5.10.0beta2 sqlsrv-5.10.0beta2 \
+            pecl install pdo_sqlsrv-5.10 sqlsrv-5.10 \
         ;else \
             pecl install pdo_sqlsrv sqlsrv \
         ;fi && \
