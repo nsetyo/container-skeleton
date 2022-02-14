@@ -153,6 +153,11 @@ services:
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     volumes:
       - ${ELASTIC_DATA_PATH:-./storage/elasticsearch}:/usr/share/elasticsearch/data
+    deploy:
+      resources:
+        limits:
+          cpus: ${ELASTICSEARCH_CPU_LIMIT:-0.50}
+          memory: ${ELASTICSEARCH_MEMORY_LIMIT:-2048M}
   kibana:
     image: docker.elastic.co/kibana/kibana:${ELASTICSEARCH_VERSION:-7.16.3}
     environment:
