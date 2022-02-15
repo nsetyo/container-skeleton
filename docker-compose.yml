@@ -13,6 +13,7 @@ networks:
 services:
 ### Frontend Service ###########################################################
   frontend:
+    image: ${COMPOSE_PROJECT_NAME}-frontend:${COMPOSE_PROJECT_VERSION:-1.0}
     build:
       context: ./containers/node
       args:
@@ -57,7 +58,7 @@ services:
     depends_on:
       - php-fpm
   php-fpm:
-    image: ${COMPOSE_PROJECT_NAME}-app
+    image: ${COMPOSE_PROJECT_NAME}-app:${COMPOSE_PROJECT_VERSION:-1.0}
     build:
       context: ./containers/php-fpm
       args:
