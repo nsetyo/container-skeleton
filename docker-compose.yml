@@ -41,7 +41,7 @@ services:
     working_dir: /var/www/frontend
 ### API Service ################################################################
   api-server:
-    image   : caddy-server
+    image   : ${COMPOSE_PROJECT_NAME}-caddy:${COMPOSE_PROJECT_VERSION:-1.0}
     build:
       context: ./containers/caddy
     labels:
