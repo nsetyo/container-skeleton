@@ -142,12 +142,14 @@ services:
 
 ### Search Service #############################################################
   elasticsearch:
-    image: elasticsearch:${ELASTICSEARCH_VERSION:-7.16.3}
+    image: elasticsearch:${ELASTIC_VERSION:-8.0.0}
     environment:
-      - ES_SETTING_BOOTSTRAP_MEMORY__LOCK=true
-      - ES_SETTING_CLUSTER_NAME=${COMPOSE_PROJECT_NAME}-cluster
-      - ES_SETTING_DISCOVERY_TYPE=single-node
-      - ES_SETTING_XPACK_SECURITY_ENABLED=true
+      - bootstrap.memory_lock=true
+      - cluster.name=${COMPOSE_PROJECT_NAME}-cluster
+      - discovery.type=single-node
+      - xpack.license.self_generated.type=basic
+      - xpack.security.enabled=true
+      - xpack.security.http.ssl.enabled=false
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     volumes:
       - ${ELASTIC_DATA_PATH:-./storage/elasticsearch}:/usr/share/elasticsearch/data
@@ -163,11 +165,12 @@ services:
       caddy: elastic.${COMPOSE_PROJECT_NAME}.localhost
       caddy.reverse_proxy: "{{upstreams 9200}}"
   kibana:
-    image: kibana:${ELASTICSEARCH_VERSION:-7.16.3}
+    image: kibana:${ELASTIC_VERSION:-8.0.0}
     environment:
-      - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=${KIBANA_ELASTICSEARCH_USERNAME:-elastic}
-      - ELASTICSEARCH_PASSWORD=${KIBANA_ELASTIC_PASSWORD}
+      - SERVERNAME=kibana
+      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_USERNAME=kibana_system
+      - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
       - SERVER_PUBLICBASEURL=https://kibana.${COMPOSE_PROJECT_NAME}.localhost
       - TELEMETRY_ENABLED=false
     networks:
@@ -175,6 +178,11 @@ services:
       - public
     depends_on:
       - elasticsearch
+    deploy:
+      resources:
+        limits:
+          cpus: ${ELASTICSEARCH_CPU_LIMIT:-0.50}
+          memory: ${ELASTICSEARCH_MEMORY_LIMIT:-2048M}
     labels:
       caddy: kibana.${COMPOSE_PROJECT_NAME}.localhost
       caddy.reverse_proxy: "{{upstreams 5601}}"
