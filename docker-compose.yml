@@ -141,21 +141,48 @@ services:
       caddy.reverse_proxy: "{{upstreams 8080}}"
 
 ### Search Service #############################################################
+  elasticsearch-setup:
+    image: elasticsearch:${ELASTIC_VERSION:-8.0.0}
+    user: "0"
+    command: >
+      bash -c '
+        if [ x${ELASTIC_PASSWORD} == x ]; then
+          echo "Set the ELASTIC_PASSWORD environment variable in the .env file";
+          exit 1;
+        elif [ x${KIBANA_PASSWORD} == x ]; then
+          echo "Set the KIBANA_PASSWORD environment variable in the .env file";
+          exit 1;
+        fi;
+        echo "Setting file permissions"
+        find . -type d -exec chmod 750 \{\} \;;
+        find . -type f -exec chmod 640 \{\} \;;
+        echo "Waiting for Elasticsearch availability";
+        until curl -s http://elasticsearch:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
+        echo "Setting kibana_system password";
+        until curl -s -X POST -u elastic:${ELASTIC_PASSWORD} -H "Content-Type: application/json" http://elasticsearch:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
+        echo "All done!";
+      '
+    networks:
+      - backend
+      - public
+
   elasticsearch:
     image: elasticsearch:${ELASTIC_VERSION:-8.0.0}
     environment:
-      - bootstrap.memory_lock=true
-      - cluster.name=${COMPOSE_PROJECT_NAME}-cluster
-      - discovery.type=single-node
-      - xpack.license.self_generated.type=basic
-      - xpack.security.enabled=true
-      - xpack.security.http.ssl.enabled=false
+      - ES_SETTING_BOOTSTRAP_MEMORY__LOCK=true
+      - ES_SETTING_CLUSTER_NAME=${COMPOSE_PROJECT_NAME}-cluster
+      - ES_SETTING_DISCOVERY_TYPE=single-node
+      - ES_SETTING_XPACK_LICENSE_SELF__GENERATED_TYPE=basic
+      - ES_SETTING_XPACK_SECURITY_ENABLED=true
+      - ES_SETTING_XPACK_SECURITY_HTTP_SSL_ENABLED=false
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     volumes:
       - ${ELASTIC_DATA_PATH:-./storage/elasticsearch}:/usr/share/elasticsearch/data
     networks:
       - backend
       - public
+    depends_on:
+      - elasticsearch-setup
     deploy:
       resources:
         limits:
