@@ -166,8 +166,8 @@ services:
     image: kibana:${ELASTICSEARCH_VERSION:-7.16.3}
     environment:
       - ELASTICSEARCH_URL=http://elasticsearch:9200
-      - ELASTICSEARCH_USERNAME=elastic
-      - ELASTICSEARCH_PASSWORD=${ELASTIC_PASSWORD}
+      - ELASTICSEARCH_USERNAME=${KIBANA_ELASTICSEARCH_USERNAME:-elastic}
+      - ELASTICSEARCH_PASSWORD=${KIBANA_ELASTIC_PASSWORD}
       - SERVER_PUBLICBASEURL=https://kibana.${COMPOSE_PROJECT_NAME}.localhost
       - TELEMETRY_ENABLED=false
     networks:
