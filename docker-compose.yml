@@ -24,10 +24,7 @@ services:
     working_dir: /var/www/frontend
     expose:
       - 3000
-    command:
-      - npm
-      - run
-      - dev
+    command: ${FRONTEND_COMMAND:-npx http-server -p 3000}
     volumes :
       - ./frontend:/var/www/frontend
       - ./.cache/frontend/pnpm:/root/.cache/pnpm
