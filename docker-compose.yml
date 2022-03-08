@@ -161,10 +161,9 @@ services:
       '
     networks:
       - backend
-      - public
 
   elasticsearch:
-    image: elasticsearch:${ELASTIC_VERSION:-8.0.0}
+    image: elasticsearch:${ELASTIC_VERSION:-8.0.1}
     environment:
       - ES_SETTING_BOOTSTRAP_MEMORY__LOCK=true
       - ES_SETTING_CLUSTER_NAME=${COMPOSE_PROJECT_NAME}-cluster
@@ -177,7 +176,6 @@ services:
       - ${ELASTIC_DATA_PATH:-./storage/elasticsearch}:/usr/share/elasticsearch/data
     networks:
       - backend
-      - public
     depends_on:
       - elasticsearch-setup
     deploy:
@@ -185,11 +183,8 @@ services:
         limits:
           cpus: ${ELASTICSEARCH_CPU_LIMIT:-0.50}
           memory: ${ELASTICSEARCH_MEMORY_LIMIT:-2048M}
-    labels:
-      caddy: elastic.${COMPOSE_PROJECT_NAME}.localhost
-      caddy.reverse_proxy: "{{upstreams 9200}}"
   kibana:
-    image: kibana:${ELASTIC_VERSION:-8.0.0}
+    image: kibana:${ELASTIC_VERSION:-8.0.1}
     environment:
       - SERVERNAME=kibana
       - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
