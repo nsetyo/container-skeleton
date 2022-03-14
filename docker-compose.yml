@@ -150,15 +150,37 @@ services:
           echo "Set the KIBANA_PASSWORD environment variable in the .env file";
           exit 1;
         fi;
+        if [[ ! -f config/certs/ca.zip ]]; then
+          echo "Creating CA";
+          bin/elasticsearch-certutil ca --silent --pem -out config/certs/ca.zip;
+          unzip config/certs/ca.zip -d config/certs;
+        fi;
+        if [[ ! -f config/certs/certs.zip ]]; then
+          echo "Creating certs";
+          echo -ne \
+          "instances:\n"\
+          "  - name: elasticsearch\n"\
+          "    dns:\n"\
+          "      - elasticsearch\n"\
+          "      - localhost\n"\
+          "    ip:\n"\
+          "      - 127.0.0.1\n"\
+          > config/certs/instances.yml;
+          bin/elasticsearch-certutil cert --silent --pem -out config/certs/certs.zip --in config/certs/instances.yml --ca-cert config/certs/ca/ca.crt --ca-key config/certs/ca/ca.key;
+          unzip config/certs/certs.zip -d config/certs;
+        fi;
         echo "Setting file permissions"
-        find . -type d -exec chmod 750 \{\} \;;
-        find . -type f -exec chmod 640 \{\} \;;
+        chown -R root:root config/certs;
+        find . -type d -exec chmod 755 \{\} \;;
+        find . -type f -exec chmod 644 \{\} \;;
         echo "Waiting for Elasticsearch availability";
-        until curl -s http://elasticsearch:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
+        until curl -s --cacert config/certs/ca/ca.crt https://elasticsearch:9200 | grep -q "missing authentication credentials"; do sleep 30; done;
         echo "Setting kibana_system password";
-        until curl -s -X POST -u elastic:${ELASTIC_PASSWORD} -H "Content-Type: application/json" http://elasticsearch:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
+        until curl -s -X POST --cacert config/certs/ca/ca.crt -u elastic:${ELASTIC_PASSWORD} -H "Content-Type: application/json" https://elasticsearch:9200/_security/user/kibana_system/_password -d "{\"password\":\"${KIBANA_PASSWORD}\"}" | grep -q "^{}"; do sleep 10; done;
         echo "All done!";
       '
+    volumes:
+      - ${ELASTIC_DATA_PATH:-./storage/elasticsearch}-certs:/usr/share/elasticsearch/config/certs
     networks:
       - backend
 
@@ -170,9 +192,19 @@ services:
       - ES_SETTING_DISCOVERY_TYPE=single-node
       - ES_SETTING_XPACK_LICENSE_SELF__GENERATED_TYPE=basic
       - ES_SETTING_XPACK_SECURITY_ENABLED=true
-      - ES_SETTING_XPACK_SECURITY_HTTP_SSL_ENABLED=false
+      - ES_SETTING_XPACK_SECURITY_HTTP_SSL_ENABLED=true
+      - ES_SETTING_XPACK_SECURITY_HTTP_SSL_KEY=certs/elasticsearch/elasticsearch.key
+      - ES_SETTING_XPACK_SECURITY_HTTP_SSL_CERTIFICATE=certs/elasticsearch/elasticsearch.crt
+      - ES_SETTING_XPACK_SECURITY_HTTP_SSL_CERTIFICATE__AUTHORITIES=certs/ca/ca.crt
+      - ES_SETTING_XPACK_SECURITY_HTTP_SSL_VERIFICATION__MODE=certificate
+      - ES_SETTING_XPACK_SECURITY_TRANSPORT_SSL_ENABLED=true
+      - ES_SETTING_XPACK_SECURITY_TRANSPORT_SSL_KEY=certs/elasticsearch/elasticsearch.key
+      - ES_SETTING_XPACK_SECURITY_TRANSPORT_SSL_CERTIFICATE=certs/elasticsearch/elasticsearch.crt
+      - ES_SETTING_XPACK_SECURITY_TRANSPORT_SSL_CERTIFICATE__AUTHORITIES=certs/ca/ca.crt
+      - ES_SETTING_XPACK_SECURITY_TRANSPORT_SSL_VERIFICATION__MODE=certificate
       - ELASTIC_PASSWORD=${ELASTIC_PASSWORD}
     volumes:
+      - ${ELASTIC_DATA_PATH:-./storage/elasticsearch}-certs:/usr/share/elasticsearch/config/certs
       - ${ELASTIC_DATA_PATH:-./storage/elasticsearch}:/usr/share/elasticsearch/data
     networks:
       - backend
@@ -187,11 +219,14 @@ services:
     image: kibana:${ELASTIC_VERSION:-8.0.1}
     environment:
       - SERVERNAME=kibana
-      - ELASTICSEARCH_HOSTS=http://elasticsearch:9200
+      - ELASTICSEARCH_HOSTS=https://elasticsearch:9200
+      - ELASTICSEARCH_SSL_CERTIFICATEAUTHORITIES=config/certs/ca/ca.crt
       - ELASTICSEARCH_USERNAME=kibana_system
       - ELASTICSEARCH_PASSWORD=${KIBANA_PASSWORD}
       - SERVER_PUBLICBASEURL=https://kibana.${COMPOSE_PROJECT_NAME}.localhost
       - TELEMETRY_ENABLED=false
+    volumes:
+      - ${ELASTIC_DATA_PATH:-./storage/elasticsearch}-certs:/usr/share/kibana/config/certs
     networks:
       - backend
       - public
