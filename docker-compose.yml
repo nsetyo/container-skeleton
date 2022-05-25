@@ -1,17 +1,17 @@
-version: '3'
+version: "3"
 
 ### Service Network ############################################################
 networks:
   public:
-    external:
-      name: ${PROJECT_EXTERNAL_NETWORK:-caddy}
+    name: ${PROJECT_EXTERNAL_NETWORK:-caddy}
+    external: true
   backend:
     driver: bridge
   default:
     driver: bridge
 
 services:
-### Frontend Service ###########################################################
+  ### Frontend Service #########################################################
   frontend:
     image: ${COMPOSE_PROJECT_NAME}-frontend:${COMPOSE_PROJECT_VERSION:-1.0}
     build:
@@ -25,7 +25,7 @@ services:
     expose:
       - 3000
     command: ${FRONTEND_COMMAND:-npx http-server -p 3000}
-    volumes :
+    volumes:
       - ./frontend:/var/www/frontend
       - ./.cache/frontend/pnpm:/root/.cache/pnpm
       - ./.cache/frontend/pnpm-store:/root/.pnpm-store
@@ -37,17 +37,17 @@ services:
       caddy: ${COMPOSE_PROJECT_NAME}.localhost
       caddy.reverse_proxy: "{{upstreams 3000}}"
 
-### API Service ################################################################
+  ### API Service ##############################################################
   api-server:
     depends_on:
       - php-fpm
-    image   : ${COMPOSE_PROJECT_NAME}-caddy:${COMPOSE_PROJECT_VERSION:-1.0}
+    image: ${COMPOSE_PROJECT_NAME}-caddy:${COMPOSE_PROJECT_VERSION:-1.0}
     build:
       context: ./containers/caddy
     labels:
       caddy: api.${COMPOSE_PROJECT_NAME}.localhost
       caddy.reverse_proxy: "{{upstreams}}"
-    volumes :
+    volumes:
       - ./backend:/var/www/backend
       - ./containers/php-fpm/Caddyfile:/etc/caddy/Caddyfile:ro
       - ./storage/caddy/data:/data
@@ -114,7 +114,7 @@ services:
     networks:
       - backend
 
-### Database Service ###########################################################
+  ### Database Service #########################################################
   database:
     image: postgres:${DB_VERSION:-14.1}-alpine
     environment:
@@ -128,7 +128,7 @@ services:
   adminer:
     image: adminer
     environment:
-     - ADMINER_DEFAULT_SERVER=database
+      - ADMINER_DEFAULT_SERVER=database
     networks:
       - backend
       - public
@@ -138,7 +138,7 @@ services:
       caddy: db.${COMPOSE_PROJECT_NAME}.localhost
       caddy.reverse_proxy: "{{upstreams 8080}}"
 
-### Search Service #############################################################
+  ### Search Service ###########################################################
   elasticsearch-setup:
     image: elasticsearch:${ELASTIC_VERSION:-8.0.0}
     user: "0"
@@ -198,7 +198,11 @@ services:
     networks:
       - backend
     healthcheck:
-      test: ["CMD-SHELL", "[ -f config/certs/elasticsearch-node-a/elasticsearch-node-a.crt ]"]
+      test:
+        [
+          "CMD-SHELL",
+          "[ -f config/certs/elasticsearch-node-a/elasticsearch-node-a.crt ]",
+        ]
       interval: 1s
       timeout: 5s
       retries: 120
