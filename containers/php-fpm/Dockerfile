@@ -8,6 +8,10 @@ ENV DEBIAN_FRONTEND noninteractive
 # Start as root
 USER root
 
+RUN if [ -n "${http_proxy}" ]; then \
+    pear config-set http_proxy $http_proxy \
+    ;fi
+
 # always run apt update when start and after add new source list, then clean up at end.
 RUN pecl channel-update pecl.php.net \
     && apt-get update -y \
@@ -457,7 +461,7 @@ RUN php -v | head -n 1 | grep -q "PHP ${PHP_VERSION}."
 
 COPY ./locale.gen /etc/locale.gen
 
-COPY ./default.conf /usr/local/etc/php-fpm.d/fpm-pool.conf
+COPY ./php-fpm.conf /usr/local/etc/php-fpm.d/fpm-pool.conf
 
 # Clean up
 RUN locale-gen && apt clean && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /var/log/lastlog /var/log/faillog

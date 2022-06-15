@@ -1,7 +1,0 @@
-:80 {
-    root * /var/www/backend/public/
-
-    php_fastcgi php-fpm:9000
-
-    file_server
-}
