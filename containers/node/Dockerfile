@@ -32,6 +32,16 @@ RUN if [ ${ENABLE_COREPACK} = true ]; then \
     ;fi
 
 ################################################################################
+# INSTALL BASH COMPLETION:
+################################################################################
+
+ARG INSTALL_BASH_COMPLETION=false
+
+RUN if [ ${INSTALL_BASH_COMPLETION} = true ]; then \
+    apt-get install -y --no-install-recommends bash-completion \
+    ;fi
+
+################################################################################
 # FINAL TOUCH:
 ################################################################################
 COPY ./locale.gen /etc/locale.gen

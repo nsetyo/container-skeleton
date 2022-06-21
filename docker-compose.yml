@@ -20,6 +20,7 @@ services:
       args:
         - NODEJS_VERSION=${NODEJS_VERSION:-16.13}
         - ENABLE_COREPACK=${NODEJS_ENABLE_COREPACK:-false}
+        - INSTALL_BASH_COMPLETION=${NODEJS_INSTALL_BASH_COMPLETION:-false}
         ### OS Timezone
         - TIMEZONE=${NODEJS_TIMEZONE:-Asia/Jakarta}
     working_dir: /var/www/frontend
