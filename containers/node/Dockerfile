@@ -48,7 +48,7 @@ RUN if [ ${INSTALL_BASH_COMPLETION} = true ]; then \
 ARG INSTALL_STARSHIPRS=false
 
 RUN if [ ${INSTALL_STARSHIPRS} = true ]; then \
-    curl -sS https://starship.rs/install.sh --yes | sh \
+    curl -sS https://starship.rs/install.sh | sh -s -- --yes \
     ;fi
 
 ################################################################################
