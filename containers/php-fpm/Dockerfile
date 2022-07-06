@@ -382,7 +382,7 @@ RUN if [ ${INSTALL_PHPREDIS} = true ]; then \
 ARG INSTALL_STARSHIPRS=false
 
 RUN if [ ${INSTALL_STARSHIPRS} = true ]; then \
-    curl -sS https://starship.rs/install.sh | sh \
+    curl -sS https://starship.rs/install.sh --yes | sh \
     ;fi
 
 ################################################################################
