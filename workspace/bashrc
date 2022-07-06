@@ -2,6 +2,10 @@ if [ -f "/etc/bash_completion" ] ; then
     . "/etc/bash_completion"
 fi
 
+if command -v starship &> /dev/null; then
+    eval "$(starship init bash)"
+fi
+
 for file in ~/source.d/*.sh ; do
     if [ -f "$file" ] ; then
         . "$file"

@@ -42,6 +42,16 @@ RUN if [ ${INSTALL_BASH_COMPLETION} = true ]; then \
     ;fi
 
 ################################################################################
+# INSTALL STARSHIPRS
+################################################################################
+
+ARG INSTALL_STARSHIPRS=false
+
+RUN if [ ${INSTALL_STARSHIPRS} = true ]; then \
+    curl -sS https://starship.rs/install.sh | sh \
+    ;fi
+
+################################################################################
 # FINAL TOUCH:
 ################################################################################
 COPY ./locale.gen /etc/locale.gen
