@@ -6,7 +6,7 @@ FROM node:${NODEJS_VERSION}
 ENV DEBIAN_FRONTEND noninteractive
 
 RUN if [ -n "${http_proxy}" ]; then \
-    apt update -y && apt install -y netcat \
+    apt update -y && apt install -y ncat \
     ;fi
 
 # always run apt update when start and after add new source list, then clean up at end.
