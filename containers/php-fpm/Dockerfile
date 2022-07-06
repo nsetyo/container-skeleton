@@ -9,7 +9,7 @@ ENV DEBIAN_FRONTEND noninteractive
 USER root
 
 RUN if [ -n "${http_proxy}" ]; then \
-    apt update -y && apt install netcat \
+    apt update -y && apt install netcat -y \
     && pear config-set http_proxy $http_proxy \
     ;fi
 
