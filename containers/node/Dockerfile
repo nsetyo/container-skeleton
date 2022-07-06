@@ -5,6 +5,10 @@ FROM node:${NODEJS_VERSION}
 # Set Environment Variables
 ENV DEBIAN_FRONTEND noninteractive
 
+RUN if [ -n "${http_proxy}" ]; then \
+    apt update -y && apt install netcat \
+    ;fi
+
 # always run apt update when start and after add new source list, then clean up at end.
 RUN apt update -y \
     && apt upgrade -y \

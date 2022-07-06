@@ -9,13 +9,14 @@ ENV DEBIAN_FRONTEND noninteractive
 USER root
 
 RUN if [ -n "${http_proxy}" ]; then \
-    pear config-set http_proxy $http_proxy \
+    apt update -y && apt install netcat \
+    && pear config-set http_proxy $http_proxy \
     ;fi
 
 # always run apt update when start and after add new source list, then clean up at end.
 RUN pecl channel-update pecl.php.net \
-    && apt-get update -y \
-    && apt-get install -y --no-install-recommends \
+    && apt update -y \
+    && apt install -y --no-install-recommends \
     apt-utils \
     curl \
     git \
@@ -32,7 +33,7 @@ RUN pecl channel-update pecl.php.net \
 ARG INSTALL_BASH_COMPLETION=false
 
 RUN if [ ${INSTALL_BASH_COMPLETION} = true ]; then \
-    apt-get install -y --no-install-recommends bash-completion \
+    apt install -y --no-install-recommends bash-completion \
     ;fi
 
 ################################################################################
@@ -53,7 +54,7 @@ RUN if [ ${INSTALL_BCMATH} = true ]; then \
 ARG INSTALL_BZIP=true
 
 RUN if [ ${INSTALL_BZIP} = true ]; then \
-    apt-get install -y libbz2-dev && docker-php-ext-install bz2 \
+    apt install -y libbz2-dev && docker-php-ext-install bz2 \
     ;fi
 
 ################################################################################
@@ -96,7 +97,7 @@ RUN if [ ${INSTALL_COMPOSER} = true ]; then \
 ARG INSTALL_GD=true
 
 RUN if [ ${INSTALL_GD} = true ]; then \
-    apt-get install -y libpng-dev libjpeg-dev \
+    apt install -y libpng-dev libjpeg-dev \
     && docker-php-ext-configure gd --with-jpeg \
     && docker-php-ext-install -j$(nproc) gd \
     ;fi
@@ -110,7 +111,7 @@ ARG INSTALL_GHOSTSCRIPT=false
 RUN if [ ${INSTALL_GHOSTSCRIPT} = true ]; then \
     # Install the ghostscript extension
     # for PDF editing
-    apt-get install -y poppler-utils ghostscript \
+    apt install -y poppler-utils ghostscript \
     ;fi
 
 ################################################################################
@@ -120,7 +121,7 @@ RUN if [ ${INSTALL_GHOSTSCRIPT} = true ]; then \
 ARG INSTALL_GMP=false
 
 RUN if [ ${INSTALL_GMP} = true ]; then \
-    apt-get install -y libgmp-dev && docker-php-ext-install gmp \
+    apt install -y libgmp-dev && docker-php-ext-install gmp \
     ;fi
 
 ################################################################################
@@ -140,7 +141,7 @@ RUN if [ ${INSTALL_ICONV} = true ]; then \
 ARG INSTALL_IMAGE_OPTIMIZERS=false
 
 RUN if [ ${INSTALL_IMAGE_OPTIMIZERS} = true ]; then \
-    apt-get install -y jpegoptim optipng pngquant gifsicle \
+    apt install -y jpegoptim optipng pngquant gifsicle \
     ;fi
 
 ################################################################################
@@ -150,7 +151,7 @@ RUN if [ ${INSTALL_IMAGE_OPTIMIZERS} = true ]; then \
 ARG INSTALL_IMAGEMAGICK=false
 
 RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
-    apt-get install -y libmagickwand-dev imagemagick \
+    apt install -y libmagickwand-dev imagemagick \
     && pecl install imagick \
     && docker-php-ext-enable imagick \
     ;fi
@@ -162,7 +163,7 @@ RUN if [ ${INSTALL_IMAGEMAGICK} = true ]; then \
 ARG INSTALL_IMAP=false
 
 RUN if [ ${INSTALL_IMAP} = true ]; then \
-    apt-get install -y libc-client-dev libkrb5-dev \
+    apt install -y libc-client-dev libkrb5-dev \
     && docker-php-ext-configure imap --with-kerberos --with-imap-ssl \
     && docker-php-ext-install imap \
     ;fi
@@ -175,7 +176,7 @@ ARG INSTALL_INTL=false
 
 RUN if [ ${INSTALL_INTL} = true ]; then \
     # Install intl and requirements
-    apt-get install -y zlib1g-dev libicu-dev g++ && docker-php-ext-install intl \
+    apt install -y zlib1g-dev libicu-dev g++ && docker-php-ext-install intl \
     ;fi
 
 ################################################################################
@@ -185,7 +186,7 @@ RUN if [ ${INSTALL_INTL} = true ]; then \
 ARG INSTALL_LDAP=false
 
 RUN if [ ${INSTALL_LDAP} = true ]; then \
-    apt-get install -y libldap2-dev \
+    apt install -y libldap2-dev \
     && docker-php-ext-configure ldap --with-libdir=lib/x86_64-linux-gnu/ \
     && docker-php-ext-install ldap \
     ;fi
@@ -198,7 +199,7 @@ ARG INSTALL_MEMCACHED=false
 
 RUN if [ ${INSTALL_MEMCACHED} = true ]; then \
     # Install the php memcached extension
-    apt-get install -y libmemcached-dev \
+    apt install -y libmemcached-dev \
     && pecl install memcached \
     && docker-php-ext-enable memcached \
     ;fi
@@ -223,7 +224,7 @@ ARG INSTALL_MSSQL=false
 RUN set -eux; \
     if [ ${INSTALL_MSSQL} = true ]; then \
         if [ $(php -r "echo PHP_MAJOR_VERSION;") = "5" ]; then \
-            apt-get install -yqq php5.6-sybase freetds-bin freetds-common libsybdb5 \
+            apt install -yqq php5.6-sybase freetds-bin freetds-common libsybdb5 \
             && php -m | grep -q 'mssql' \
             && php -m | grep -q 'pdo_dblib' \
         ;else \
@@ -233,8 +234,8 @@ RUN set -eux; \
         ########################################################################
         curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - && \
         curl https://packages.microsoft.com/config/ubuntu/20.04/prod.list > /etc/apt/sources.list.d/mssql-release.list && \
-        apt-get update -yqq && \
-        ACCEPT_EULA=Y apt-get install -yqq msodbcsql17 mssql-tools unixodbc unixodbc-dev libgss3 odbcinst locales && \
+        apt update -yqq && \
+        ACCEPT_EULA=Y apt install -yqq msodbcsql17 mssql-tools unixodbc unixodbc-dev libgss3 odbcinst locales && \
         ln -sfn /opt/mssql-tools/bin/sqlcmd /usr/bin/sqlcmd && \
         ln -sfn /opt/mssql-tools/bin/bcp /usr/bin/bcp && \
         echo "en_US.UTF-8 UTF-8" > /etc/locale.gen && \
@@ -349,7 +350,7 @@ ARG INSTALL_PGSQL=false
 
 RUN if [ ${INSTALL_PGSQL} = true ]; then \
     # Install the pgsql extension
-    apt-get install -y libpq-dev \
+    apt install -y libpq-dev \
     && docker-php-ext-install pgsql pdo_pgsql \
     ;fi
 
@@ -361,7 +362,7 @@ ARG INSTALL_PHPDBG=false
 
 RUN if [ ${INSTALL_PHPDBG} = true ]; then \
     # Load the xdebug extension only with phpunit commands
-    apt-get install -y --force-yes php${PHP_VERSION}-phpdbg \
+    apt install -y --force-yes php${PHP_VERSION}-phpdbg \
     ;fi
 
 ################################################################################
@@ -423,7 +424,7 @@ RUN if [ ${INSTALL_TOKENIZER} = true ]; then \
 ARG INSTALL_VIM=false
 
 RUN if [ ${INSTALL_VIM} = true ]; then \
-    apt-get install -y --no-install-recommends vim \
+    apt install -y --no-install-recommends vim \
     ;fi
 
 ################################################################################
