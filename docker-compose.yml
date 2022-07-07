@@ -29,11 +29,16 @@ services:
       - 3000
     command: ${FRONTEND_COMMAND:-npx http-server -p 3000}
     volumes:
-      - ./frontend:/var/www/frontend
       - ./.cache/frontend/pnpm:/root/.cache/pnpm
       - ./.cache/frontend/pnpm-store:/root/.pnpm-store
       - ./.git:/var/www/.git
       - ./.vscode-server/node:/root/.vscode-server
+      - ./frontend:/var/www/frontend
+      - ./workspace/source.d:/root/source.d
+      - ./workspace/bashrc:/root/.bashrc
+      - ./workspace/inputrc:/root/.inputrc
+      - ${WORKSPACE_GPG_DIR:-./workspace/gpg}:/root/.gnupg
+      - ${WORKSPACE_SSH_DIR:-./workspace/ssh}:/root/.ssh
     networks:
       - public
     labels:
@@ -106,8 +111,9 @@ services:
       - ./.vscode-server/php-fpm/:/root/.vscode-server
       - ./backend:/var/www/backend
       - ./containers/php-fpm/conf.d:/usr/local/etc/php/local.d
-      - ./workspace/bashrc:/root/.bashrc
       - ./workspace/source.d:/root/source.d
+      - ./workspace/bashrc:/root/.bashrc
+      - ./workspace/inputrc:/root/.inputrc
       - ${ELASTIC_DATA_PATH:-./storage/elasticsearch}-certs:/var/www/elasticsearch-certs
       - ${WORKSPACE_GPG_DIR:-./workspace/gpg}:/root/.gnupg
       - ${WORKSPACE_SSH_DIR:-./workspace/ssh}:/root/.ssh
